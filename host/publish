@@ -7,6 +7,7 @@
 # branch-based Pages builds still deploy. .github/workflows/update.yml is the drop-in replacement once Actions
 # runs again (enable it and unload this job; never run both).
 #
+# Env: PR_POWER_RATE_FORCE_PUBLISH=1 publishes even when unchanged.
 # Exit: 0 ok (published or unchanged) · 2 stale (no LUMA row covers today) · 3 NEPR mismatch · other = failure.
 set -u
 REPO=${PR_POWER_RATE_REPO:-$HOME/Developer/pr-power-rate}
@@ -67,7 +68,7 @@ fi
 # Publish when the content changed, or once a day to refresh checked_on.
 strip='del(.generated_at, .checked_on)'
 live=$(curl -fsS -m 30 "$LIVE" 2>/dev/null || echo '{}')
-deploy=0
+deploy=${PR_POWER_RATE_FORCE_PUBLISH:-0}
 [ "$(echo "$live" | jq -S "$strip")" != "$(jq -S "$strip" "$site/api/v1/current.json")" ] && deploy=1
 [ "$(echo "$live" | jq -r '.checked_on // ""')" != "$(jq -r .checked_on "$site/api/v1/current.json")" ] && deploy=1
 if [ $deploy -eq 1 ]; then
