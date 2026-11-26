@@ -1,0 +1,12 @@
+#!/bin/zsh
+# install — set up the Mac mini publisher: clone, venv, launchd job. Idempotent.
+set -eu
+REPO=$HOME/Developer/pr-power-rate; ST="$HOME/Library/Application Support/pr-power-rate"
+[ -d "$REPO/.git" ] || git clone -q https://github.com/muriente/pr-power-rate.git "$REPO"
+mkdir -p "$ST/logs"
+[ -x "$ST/venv/bin/python" ] || uv venv -q -p 3.13 "$ST/venv"
+uv pip install -q -p "$ST/venv/bin/python" -r "$REPO/requirements.txt"
+cp "$REPO/host/com.muriente.pr-power-rate.plist" "$HOME/Library/LaunchAgents/"
+launchctl bootout "gui/$(id -u)/com.muriente.pr-power-rate" 2>/dev/null || true
+launchctl bootstrap "gui/$(id -u)" "$HOME/Library/LaunchAgents/com.muriente.pr-power-rate.plist"
+launchctl print "gui/$(id -u)/com.muriente.pr-power-rate" | grep -E 'state|last exit' | head -3

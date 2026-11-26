@@ -1,0 +1,89 @@
+#!/bin/zsh
+# publish — hourly job on the Mac mini (launchd: com.muriente.pr-power-rate). Rebuilds the endpoint from live
+# LUMA + NEPR sources, publishes it to the gh-pages branch (GitHub Pages serves it), archives new LUMA workbooks
+# on main, reports pipeline failures as GitHub issues, then re-applies the price to device apps when it changed.
+#
+# Why not GitHub Actions: the account's Actions jobs are refused ("recent account payments have failed"), while
+# branch-based Pages builds still deploy. .github/workflows/update.yml is the drop-in replacement once Actions
+# runs again (enable it and unload this job; never run both).
+#
+# Exit: 0 ok (published or unchanged) · 2 stale (no LUMA row covers today) · 3 NEPR mismatch · other = failure.
+set -u
+REPO=${PR_POWER_RATE_REPO:-$HOME/Developer/pr-power-rate}
+STATE="$HOME/Library/Application Support/pr-power-rate"
+PY="$STATE/venv/bin/python"
+LIVE=https://muriente.github.io/pr-power-rate/api/v1/current.json
+LOG="$STATE/logs/publish.log"
+mkdir -p "$STATE/logs"
+exec >>"$LOG" 2>&1
+echo "=== $(date -u +%FT%TZ) publish start"
+export PATH=/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin
+
+lock="$STATE/publish.lock"
+if ! mkdir "$lock" 2>/dev/null; then
+  if [ -n "$(find "$lock" -mmin +90 2>/dev/null)" ]; then rmdir "$lock"; mkdir "$lock"; else echo "another run holds $lock"; exit 0; fi
+fi
+trap 'rmdir "$lock" 2>/dev/null' EXIT
+
+cd "$REPO" || exit 1
+git fetch -q origin && git checkout -q main && git merge -q --ff-only origin/main || { echo "main is not fast-forwardable; leaving it alone"; }
+
+site="$STATE/site"
+"$PY" -m prrate.build --out "$site" 2>"$STATE/build.err"
+code=$?
+cat "$STATE/build.err"
+
+issue() {  # issue <title> <body>: one open issue per title, labelled pipeline
+  gh label create pipeline -R muriente/pr-power-rate --color B60205 --description "Automated update pipeline" >/dev/null 2>&1
+  local n; n=$(gh issue list -R muriente/pr-power-rate --state open --label pipeline --search "\"$1\" in:title" --json number --jq '.[0].number')
+  if [ -n "$n" ]; then
+    # comment at most once a day per issue
+    [ "$(gh issue view "$n" -R muriente/pr-power-rate --json comments --jq '.comments[-1].createdAt[0:10]')" = "$(date -u +%F)" ] || \
+      gh issue comment "$n" -R muriente/pr-power-rate --body "$2"
+  else gh issue create -R muriente/pr-power-rate --title "$1" --label pipeline --body "$2"; fi
+}
+
+if [ $code -ne 0 ]; then
+  case $code in
+    2) title="Waiting: no LUMA factor row covers today" ;;
+    3) title="Blocked: LUMA factors do not match the NEPR order" ;;
+    *) title="Build failed (exit $code)" ;;
+  esac
+  issue "$title" "$(printf 'Mac mini publish job, %s\n\n```\n%s\n```\nThe live endpoint keeps the last verified data until this is resolved.' "$(date -u +%FT%TZ)" "$(cat "$STATE/build.err")")"
+  echo "=== build exit $code; nothing published"
+  exit $code
+fi
+for n in $(gh issue list -R muriente/pr-power-rate --state open --label pipeline --json number --jq '.[].number' 2>/dev/null); do
+  gh issue close "$n" -R muriente/pr-power-rate --comment "Resolved: build verified at $(date -u +%FT%TZ)."
+done
+
+# Archive a new LUMA workbook and the parsed history on main.
+cp "$site/api/v1/history.json" data/history.json
+git add data/luma/archive data/history.json
+if ! git diff --cached --quiet; then
+  git commit -q -m "data: archive LUMA factor table and history ($(date -u +%F))" && git push -q origin main && echo "main: data committed"
+fi
+
+# Publish when the content changed, or once a day to refresh checked_on.
+strip='del(.generated_at, .checked_on)'
+live=$(curl -fsS -m 30 "$LIVE" 2>/dev/null || echo '{}')
+deploy=0
+[ "$(echo "$live" | jq -S "$strip")" != "$(jq -S "$strip" "$site/api/v1/current.json")" ] && deploy=1
+[ "$(echo "$live" | jq -r '.checked_on // ""')" != "$(jq -r .checked_on "$site/api/v1/current.json")" ] && deploy=1
+if [ $deploy -eq 1 ]; then
+  wt="$STATE/gh-pages"
+  [ -d "$wt/.git" ] || [ -f "$wt/.git" ] || git worktree add -q "$wt" gh-pages
+  git -C "$wt" fetch -q origin gh-pages && git -C "$wt" reset -q --hard origin/gh-pages
+  rsync -a --delete --exclude .git "$site/" "$wt/"
+  git -C "$wt" add -A
+  if ! git -C "$wt" diff --cached --quiet; then
+    git -C "$wt" commit -q -m "Publish $(jq -r '.price_usd_per_kwh' "$site/api/v1/current.json") USD/kWh ($(jq -r .period_label "$site/api/v1/current.json")), checked $(jq -r .checked_on "$site/api/v1/current.json")"
+    git -C "$wt" push -q origin gh-pages && echo "gh-pages: published"
+  fi
+else
+  echo "unchanged; not published"
+fi
+
+# Device apps: re-apply when the price in force differs from the last price applied.
+"$REPO/host/apply-apps" --if-changed "$site/api/v1/current.json" || echo "apply-apps exit $? (see apply-apps.log)"
+echo "=== $(date -u +%FT%TZ) publish done"
