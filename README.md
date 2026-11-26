@@ -61,10 +61,16 @@ price"). This was verified on a fresh Home Assistant 2026.11.3: the sensor read 
 cost sensor charged $3.28588 for 10 kWh. Juan's instance consumes it through `muriente/home-lab` PR #168
 (`config/packages/tariff.yaml`), which writes the existing tariff helpers from this endpoint.
 
-### Apps without a rate URL (Emporia, FranklinWH, Tuya)
+### Apps without a rate URL (FranklinWH, Emporia, Tuya)
 
-These apps only take a typed number, so `host/apply-apps` types it in over ADB on the phone whenever the price
-changes. See [Operations](#operations).
+These apps only take a typed number, so `host/apply-apps` (flows in `host/apps.py`) types it over ADB on Juan's
+Pixel whenever the price changes, then restarts the app and reads the value back.
+
+| App | State (2026-11-26) |
+|---|---|
+| FranklinWH | Applied and read back after restart: custom fixed tariff "Tarifa Fija (Trimestral)", Season 4 (Oct–Dec) buy/sell **0.32859** (was 0.2855). The mode stays Self-Consumption. Each quarter the flow edits that quarter's season. |
+| Emporia | Not signed in on the Pixel or on DroidFuse, so there is nothing to apply. Accounts are never signed into by automation. Once signed in, add the flow (Manual Rate Entry, in ¢/kWh). |
+| Tuya / Smart Life | Signed in, but its devices (Mini Plug, Smart Bulb) have no energy metering, so there is no price setting. |
 
 ### Anything else
 
