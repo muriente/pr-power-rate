@@ -1,0 +1,35 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Puerto Rico electricity rate (LUMA): 32.86¢/kWh</title>
+<style>body{font:16px/1.5 system-ui,sans-serif;max-width:52rem;margin:2rem auto;padding:0 1rem;color:#111}
+.big{font-size:3rem;font-weight:700}table{border-collapse:collapse;width:100%}td,th{border-bottom:1px solid #ddd;padding:.3rem .5rem;text-align:left}
+.n{text-align:right;font-variant-numeric:tabular-nums}code{background:#f3f3f3;padding:.1rem .3rem}small{color:#555}</style></head><body>
+<h1>Puerto Rico residential electricity rate (LUMA, GRS)</h1>
+<p class=big>32.8588¢ / kWh</p>
+<p>Effective <b>2026-10-01</b> to <b>2026-12-31</b> (octubre a diciembre 2026).
+Plus a fixed charge of <b>$8.00/month</b>. All-in average including the fixed charge: 400 kWh: 34.86¢ · 800 kWh: 33.86¢ · 1000 kWh: 33.66¢.</p>
+<table><tr><th>Key</th><th>Component</th><th class=n>¢/kWh</th><th>Official source</th></tr>
+<tr><td>base_energy</td><td>Base energy charge (cargo por energía, GRS)</td><td class=n>8.6480</td><td><a href="https://energia.pr.gov/wp-content/uploads/sites/7/2026/04/20260415-AP20230003-Final-Resolution-and-Order.pdf">source</a></td></tr>
+<tr><td>FCA</td><td>Fuel Charge Adjustment (Cláusula de Compra de Combustible)</td><td class=n>17.3576</td><td><a href="https://energia.pr.gov/wp-content/uploads/sites/7/2026/09/20260930-MI20200001-Resolucion-y-Orden.pdf">source</a></td></tr>
+<tr><td>PPCA</td><td>Purchased Power Charge Adjustment (Cláusula de Compra de Energía)</td><td class=n>4.5090</td><td><a href="https://energia.pr.gov/wp-content/uploads/sites/7/2026/09/20260930-MI20200001-Resolucion-y-Orden.pdf">source</a></td></tr>
+<tr><td>CILTA</td><td>CILT adjustment (Contribución en Lugar de Impuestos, municipios)</td><td class=n>0.7386</td><td><a href="https://energia.pr.gov/wp-content/uploads/sites/7/2026/06/20260630-MI20200001-Resolucion-y-Orden.pdf">source</a></td></tr>
+<tr><td>SUBA_HH</td><td>Subsidies adjustment, households (SUBA-HH)</td><td class=n>1.4338</td><td><a href="https://energia.pr.gov/wp-content/uploads/sites/7/2026/06/20260630-MI20200001-Resolucion-y-Orden.pdf">source</a></td></tr>
+<tr><td>SUBA_NHH</td><td>Subsidies adjustment, non-households (SUBA-NHH)</td><td class=n>0.0865</td><td><a href="https://energia.pr.gov/wp-content/uploads/sites/7/2026/06/20260630-MI20200001-Resolucion-y-Orden.pdf">source</a></td></tr>
+<tr><td>EE</td><td>Energy Efficiency rider (Cláusula de Eficiencia Energética)</td><td class=n>0.0853</td><td><a href="https://energia.pr.gov/wp-content/uploads/sites/7/2026/06/20260630-MI20200001-Resolucion-y-Orden.pdf">source</a></td></tr>
+<tr><td>PENSION</td><td>Pension costs rider</td><td class=n>0.0000</td><td><a href="https://lumapr.com/wp-content/uploads/2026/10/Tabla-de-Factores-1.xlsx">source</a></td></tr>
+<tr><td>PROVISIONAL</td><td>Provisional rate rider</td><td class=n>0.0000</td><td><a href="https://lumapr.com/wp-content/uploads/2026/10/Tabla-de-Factores-1.xlsx">source</a></td></tr>
+<tr><td></td><td><b>Total per kWh</b></td><td class=n><b>32.8588</b></td><td></td></tr></table>
+<p><small>Not included: FOS 2.0822¢/kWh — Fuel subsidy credit (Cláusula de Subsidio de Combustible) for qualifying subsidized customers using under 500 kWh/month; it is a credit, not a charge to the standard residential customer, so it is published separately and never added to the price.</small></p>
+<h2>Verification</h2>
+<p>Factors parsed from LUMA's <a href="https://lumapr.com/wp-content/uploads/2026/10/Tabla-de-Factores-1.xlsx">Tabla de Factores</a>
+(sha256 <code>63334ef24aee9d56…</code>) and matched digit-for-digit against the Energy Bureau orders:
+quarterly <a href="https://energia.pr.gov/wp-content/uploads/sites/7/2026/09/20260930-MI20200001-Resolucion-y-Orden.pdf">2026-09-30</a>,
+annual riders <a href="https://energia.pr.gov/wp-content/uploads/sites/7/2026/06/20260630-MI20200001-Resolucion-y-Orden.pdf">2026-06-30</a>.
+Status: <b>verified</b>. Checked 2026-11-26, generated 2026-11-26T20:21:32Z.</p>
+<h2>API</h2><ul>
+<li><a href="api/v1/current.json"><code>/api/v1/current.json</code></a> — current price, components, sources</li>
+<li><a href="api/v1/history.json"><code>/api/v1/history.json</code></a> — every quarter LUMA has published since 2019</li>
+<li><a href="api/v1/price.txt"><code>/api/v1/price.txt</code></a> — just the $/kWh number</li></ul>
+<p><small>Unofficial, community-maintained; updated automatically from official LUMA and NEPR publications.
+Code: <a href="https://github.com/muriente/pr-power-rate">github.com/muriente/pr-power-rate</a></small></p>
+</body></html>

@@ -1,0 +1,129 @@
+{
+  "schema": "https://github.com/muriente/pr-power-rate/blob/main/docs/schema.md",
+  "utility": "LUMA Energy, Puerto Rico",
+  "rate_class": "GRS",
+  "rate_class_name": "General Residential Service (Servicio Residencial General), non-subsidized",
+  "currency": "USD",
+  "price_usd_per_kwh": 0.328588,
+  "price_cents_per_kwh": 32.8588,
+  "price_note": "Marginal price of one more kWh: base energy charge plus every per-kWh rider. The monthly fixed charge is separate (fixed_charge_usd_per_month).",
+  "fixed_charge_usd_per_month": 8.0,
+  "average_usd_per_kwh_including_fixed_charge": {
+    "400": 0.348588,
+    "800": 0.338588,
+    "1000": 0.336588
+  },
+  "effective_start": "2026-10-01",
+  "effective_end": "2026-12-31",
+  "period_label": "octubre a diciembre 2026",
+  "upcoming": null,
+  "components": {
+    "base_energy": {
+      "name": "Base energy charge (cargo por energía, GRS)",
+      "usd_per_kwh": 0.08648,
+      "source": "https://energia.pr.gov/wp-content/uploads/sites/7/2026/04/20260415-AP20230003-Final-Resolution-and-Order.pdf"
+    },
+    "FCA": {
+      "name": "Fuel Charge Adjustment (Cláusula de Compra de Combustible)",
+      "usd_per_kwh": 0.173576,
+      "source": "https://energia.pr.gov/wp-content/uploads/sites/7/2026/09/20260930-MI20200001-Resolucion-y-Orden.pdf"
+    },
+    "PPCA": {
+      "name": "Purchased Power Charge Adjustment (Cláusula de Compra de Energía)",
+      "usd_per_kwh": 0.04509,
+      "source": "https://energia.pr.gov/wp-content/uploads/sites/7/2026/09/20260930-MI20200001-Resolucion-y-Orden.pdf"
+    },
+    "CILTA": {
+      "name": "CILT adjustment (Contribución en Lugar de Impuestos, municipios)",
+      "usd_per_kwh": 0.007386,
+      "source": "https://energia.pr.gov/wp-content/uploads/sites/7/2026/06/20260630-MI20200001-Resolucion-y-Orden.pdf"
+    },
+    "SUBA_HH": {
+      "name": "Subsidies adjustment, households (SUBA-HH)",
+      "usd_per_kwh": 0.014338,
+      "source": "https://energia.pr.gov/wp-content/uploads/sites/7/2026/06/20260630-MI20200001-Resolucion-y-Orden.pdf"
+    },
+    "SUBA_NHH": {
+      "name": "Subsidies adjustment, non-households (SUBA-NHH)",
+      "usd_per_kwh": 0.000865,
+      "source": "https://energia.pr.gov/wp-content/uploads/sites/7/2026/06/20260630-MI20200001-Resolucion-y-Orden.pdf"
+    },
+    "EE": {
+      "name": "Energy Efficiency rider (Cláusula de Eficiencia Energética)",
+      "usd_per_kwh": 0.000853,
+      "source": "https://energia.pr.gov/wp-content/uploads/sites/7/2026/06/20260630-MI20200001-Resolucion-y-Orden.pdf"
+    },
+    "PENSION": {
+      "name": "Pension costs rider",
+      "usd_per_kwh": 0.0,
+      "source": "https://lumapr.com/wp-content/uploads/2026/10/Tabla-de-Factores-1.xlsx"
+    },
+    "PROVISIONAL": {
+      "name": "Provisional rate rider",
+      "usd_per_kwh": 0.0,
+      "source": "https://lumapr.com/wp-content/uploads/2026/10/Tabla-de-Factores-1.xlsx"
+    }
+  },
+  "not_included": {
+    "FOS": {
+      "name": "Fuel subsidy clause (Cláusula de Subsidio de Combustible)",
+      "usd_per_kwh": 0.020822,
+      "why": "Fuel subsidy credit (Cláusula de Subsidio de Combustible) for qualifying subsidized customers using under 500 kWh/month; it is a credit, not a charge to the standard residential customer, so it is published separately and never added to the price."
+    },
+    "other": "Optional discounts (e.g. direct debit) and riders without an ordered factor are not included."
+  },
+  "sources": {
+    "luma_factor_table": {
+      "url": "https://lumapr.com/wp-content/uploads/2026/10/Tabla-de-Factores-1.xlsx",
+      "sha256": "63334ef24aee9d566891b28706b445a8d74d7e86c305ca936a0061eef3558cb1",
+      "page": "https://lumapr.com/tarifas-vigentes-del-servicio-electrico-en-puerto-rico/"
+    },
+    "nepr_quarterly_order": "https://energia.pr.gov/wp-content/uploads/sites/7/2026/09/20260930-MI20200001-Resolucion-y-Orden.pdf",
+    "nepr_annual_riders_order": "https://energia.pr.gov/wp-content/uploads/sites/7/2026/06/20260630-MI20200001-Resolucion-y-Orden.pdf",
+    "base_tariff": [
+      {
+        "name": "NEPR Final Resolution and Order on Electricity Rates, NEPR-AP-2023-0003 (2026-04-15), Appendix B (PDF p. 773): GRS $8.00/month + $0.08648/kWh (both 425 kWh blocks equal)",
+        "url": "https://energia.pr.gov/wp-content/uploads/sites/7/2026/04/20260415-AP20230003-Final-Resolution-and-Order.pdf"
+      },
+      {
+        "name": "LUMA FY2027 Tariff Book, approved by NEPR 2026-07-22 (NEPR-MI-2026-0005); Pension and Provisional riders folded into base rates",
+        "url": "https://lumapr.com/wp-content/uploads/2026/07/FY2027-Tariff-Book-Modifications_Spanish.pdf"
+      },
+      {
+        "name": "NEPR Resolution and Order 2026-09-30 (Table 2: GRS 800 kWh bill $270.86 = $0.33858/kWh, which these base values reproduce)",
+        "url": "https://energia.pr.gov/wp-content/uploads/sites/7/2026/09/20260930-MI20200001-Resolucion-y-Orden.pdf"
+      }
+    ]
+  },
+  "verification": {
+    "quarterly": {
+      "order_date": "2026-09-30",
+      "url": "https://energia.pr.gov/wp-content/uploads/sites/7/2026/09/20260930-MI20200001-Resolucion-y-Orden.pdf",
+      "matched": {
+        "FCA": true,
+        "PPCA": true,
+        "FOS": true
+      },
+      "ok": true
+    },
+    "annual": {
+      "order_date": "2026-06-30",
+      "url": "https://energia.pr.gov/wp-content/uploads/sites/7/2026/06/20260630-MI20200001-Resolucion-y-Orden.pdf",
+      "matched": {
+        "CILTA": true,
+        "SUBA_HH": true,
+        "SUBA_NHH": true,
+        "EE": true
+      },
+      "ok": true
+    },
+    "status": "verified"
+  },
+  "generated_at": "2026-11-26T20:21:32Z",
+  "checked_on": "2026-11-26",
+  "endpoints": {
+    "current": "https://muriente.github.io/pr-power-rate/api/v1/current.json",
+    "history": "https://muriente.github.io/pr-power-rate/api/v1/history.json",
+    "plain_text_price": "https://muriente.github.io/pr-power-rate/api/v1/price.txt"
+  }
+}
