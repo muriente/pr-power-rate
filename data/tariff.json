@@ -1,0 +1,59 @@
+{
+  "_comment": "Base (non-reconciling) residential tariff, maintained by hand from the NEPR rate-case order and LUMA's tariff book. Factors that change quarterly/annually come from LUMA's Tabla de Factores and are NOT stored here.",
+  "rate_class": "GRS",
+  "rate_class_name": "General Residential Service (Servicio Residencial General), non-subsidized",
+  "base_tariffs": [
+    {
+      "effective_start": "2026-07-01",
+      "effective_end": "2027-06-30",
+      "fixed_charge_usd_per_month": 8.0,
+      "energy_charge_usd_per_kwh": 0.08648,
+      "sources": [
+        {
+          "name": "NEPR Final Resolution and Order on Electricity Rates, NEPR-AP-2023-0003 (2026-04-15), Appendix B (PDF p. 773): GRS $8.00/month + $0.08648/kWh (both 425 kWh blocks equal)",
+          "url": "https://energia.pr.gov/wp-content/uploads/sites/7/2026/04/20260415-AP20230003-Final-Resolution-and-Order.pdf"
+        },
+        {
+          "name": "LUMA FY2027 Tariff Book, approved by NEPR 2026-07-22 (NEPR-MI-2026-0005); Pension and Provisional riders folded into base rates",
+          "url": "https://lumapr.com/wp-content/uploads/2026/07/FY2027-Tariff-Book-Modifications_Spanish.pdf"
+        },
+        {
+          "name": "NEPR Resolution and Order 2026-09-30 (Table 2: GRS 800 kWh bill $270.86 = $0.33858/kWh, which these base values reproduce)",
+          "url": "https://energia.pr.gov/wp-content/uploads/sites/7/2026/09/20260930-MI20200001-Resolucion-y-Orden.pdf"
+        }
+      ]
+    },
+    {
+      "effective_start": "2027-07-01",
+      "effective_end": "2028-06-30",
+      "fixed_charge_usd_per_month": 16.0,
+      "energy_charge_usd_per_kwh": 0.06275,
+      "note": "FY2028 rates as ordered on 2026-04-15; re-verify against the FY2028 tariff book before July 2027.",
+      "sources": [
+        {
+          "name": "NEPR Final Resolution and Order on Electricity Rates, NEPR-AP-2023-0003 (2026-04-15), Appendix B: FY2028 GRS $16.00/month + $0.06275/kWh",
+          "url": "https://energia.pr.gov/wp-content/uploads/sites/7/2026/04/20260415-AP20230003-Final-Resolution-and-Order.pdf"
+        }
+      ]
+    }
+  ],
+  "residential_components": [
+    "FCA",
+    "PPCA",
+    "CILTA",
+    "SUBA_HH",
+    "SUBA_NHH",
+    "EE",
+    "PENSION",
+    "PROVISIONAL"
+  ],
+  "excluded_components": {
+    "FOS": "Fuel subsidy credit (Cláusula de Subsidio de Combustible) for qualifying subsidized customers using under 500 kWh/month; it is a credit, not a charge to the standard residential customer, so it is published separately and never added to the price."
+  },
+  "benchmark_kwh": [
+    400,
+    800,
+    1000
+  ],
+  "history_note": "Prices before 2026-07-01 are not published: the pre-rate-case split between customer and energy charge has not been verified from a primary source, so those quarters carry factors only."
+}

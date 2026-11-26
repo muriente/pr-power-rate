@@ -1,0 +1,110 @@
+name: update
+
+# Rebuilds the endpoint from LUMA's Tabla de Factores and the NEPR orders it cites, then deploys GitHub Pages.
+# Hourly so a new quarter goes live within an hour of midnight (America/Puerto_Rico) on its first day, and a
+# newly published table is picked up the same hour. Deploys only when the published content changes or once a
+# day (to refresh checked_on), so Pages is not redeployed 24 times a day.
+
+on:
+  schedule:
+    - cron: "7 * * * *"
+  workflow_dispatch:
+    inputs:
+      force_deploy:
+        description: "Deploy even if nothing changed"
+        type: boolean
+        default: false
+  push:
+    branches: [main]
+    paths: ["prrate/**", "data/tariff.json", ".github/workflows/update.yml", "tests/**"]
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+  issues: write
+
+concurrency:
+  group: update
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      deploy: ${{ steps.diff.outputs.deploy }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: Unit tests (offline, against archived official workbooks)
+        run: python -m unittest discover -s tests -v
+      - name: Build from live LUMA + NEPR sources
+        id: build
+        run: |
+          set +e
+          python -m prrate.build --out site 2> build.err
+          code=$?
+          cat build.err
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          exit 0
+      - name: Report a failed or stale build as an issue
+        if: steps.build.outputs.code != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CODE: ${{ steps.build.outputs.code }}
+        run: |
+          case "$CODE" in
+            2) title="Waiting: no LUMA factor row covers today" ;;
+            3) title="Blocked: LUMA factors do not match the NEPR order" ;;
+            *) title="Build failed (exit $CODE)" ;;
+          esac
+          body="$(printf 'Run: %s/%s/actions/runs/%s\n\n```\n%s\n```\nThe live endpoint keeps the last verified data until this is resolved.' \
+            "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" "$(cat build.err)")"
+          existing=$(gh issue list --state open --label pipeline --search "\"$title\" in:title" --json number --jq '.[0].number')
+          gh label create pipeline --color B60205 --description "Automated update pipeline" 2>/dev/null || true
+          if [ -n "$existing" ]; then gh issue comment "$existing" --body "$body"; else gh issue create --title "$title" --label pipeline --body "$body"; fi
+          exit 1
+      - name: Close resolved pipeline issues
+        if: steps.build.outputs.code == '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for n in $(gh issue list --state open --label pipeline --json number --jq '.[].number'); do
+            gh issue close "$n" --comment "Resolved: build verified at $(date -u +%FT%TZ)."
+          done
+      - name: Commit archived workbook and parsed history
+        run: |
+          git config user.name "pr-power-rate bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          cp site/api/v1/history.json data/history.json
+          git add data/luma/archive data/history.json
+          git diff --cached --quiet || { git commit -m "data: archive LUMA factor table and history ($(date -u +%F))"; git push; }
+      - name: Decide whether to deploy
+        id: diff
+        env:
+          FORCE: ${{ inputs.force_deploy }}
+        run: |
+          strip='del(.generated_at, .checked_on)'
+          live=$(curl -fsS https://muriente.github.io/pr-power-rate/api/v1/current.json || echo '{}')
+          if [ "$FORCE" = "true" ] || [ "$GITHUB_EVENT_NAME" = "push" ]; then echo "deploy=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          if [ "$(echo "$live" | jq -S "$strip")" != "$(jq -S "$strip" site/api/v1/current.json)" ]; then echo "deploy=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          if [ "$(echo "$live" | jq -r '.checked_on // ""')" != "$(jq -r .checked_on site/api/v1/current.json)" ]; then echo "deploy=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          echo "deploy=false" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-pages-artifact@v3
+        if: steps.diff.outputs.deploy == 'true'
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    if: needs.build.outputs.deploy == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
