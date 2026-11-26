@@ -1,7 +1,6 @@
 # MISSION — PR Power Rate (working name `pr-power-rate`)
 
-> This repo (`pixel9-superdevice-`, empty and abandoned) is being REPURPOSED for this project.
-> First task for the agent: rename the repo to `pr-power-rate` and replace this README context.
+> Original mission brief (2026-10-18). The repo was renamed from `pixel9-superdevice-` to `pr-power-rate` on 2026-11-26.
 
 ## ⚠️ RULE ZERO — Research before building (owner's explicit instruction)
 Do NOT assume this doesn't exist. Juan already uses an app (he doesn't recall which) that receives PR rates
@@ -58,8 +57,3 @@ them in ~4 apps every 3 months; people forget, and every energy number drifts ou
 ## Constraints
 - Owner prefers execution over questions; do not hand him work that can be deduced or automated.
 - Data must be legitimate, sourced and citable (link every value to its official source).
-
-## Related context
-- Juan is in San Juan, PR (LUMA customer); uses Emporia + Franklin + Home Assistant.
-- The GitHub connector from claude.ai cannot create repos/issues (403, known bug anthropics/claude-ai-mcp#822,
-  anthropics/claude-code#88713) — hence this repurpose and EPIC.md instead of an issue.
