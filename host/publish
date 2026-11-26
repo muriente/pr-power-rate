@@ -59,7 +59,7 @@ for n in $(gh issue list -R muriente/pr-power-rate --state open --label pipeline
 done
 
 # Archive a new LUMA workbook and the parsed history on main.
-cp "$site/api/v1/history.json" data/history.json
+jq 'del(.generated_at)' "$site/api/v1/history.json" > data/history.json  # no timestamp: commit only real changes
 git add data/luma/archive data/history.json
 if ! git diff --cached --quiet; then
   git commit -q -m "data: archive LUMA factor table and history ($(date -u +%F))" && git push -q origin main && echo "main: data committed"

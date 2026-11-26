@@ -79,7 +79,7 @@ jobs:
         run: |
           git config user.name "pr-power-rate bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          cp site/api/v1/history.json data/history.json
+          jq 'del(.generated_at)' site/api/v1/history.json > data/history.json
           git add data/luma/archive data/history.json
           git diff --cached --quiet || { git commit -m "data: archive LUMA factor table and history ($(date -u +%F))"; git push; }
       - name: Decide whether to deploy
