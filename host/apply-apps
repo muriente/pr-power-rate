@@ -69,12 +69,18 @@ def main() -> int:
     for name in todo:
         spec = apps.APPS[name]
         dev = Device(spec["route"], spec.get("serial", "66160DLKX004F1"))
+        before = ""
         try:
             dev.acquire_lease()
             try:
+                before = dev.focused().split("/")[0]
                 shown = spec["apply"](dev, price, STATE_DIR / "evidence")
             finally:
-                dev.key("KEYCODE_HOME")
+                # put the phone back the way we found it: the app that was in front, else the home screen
+                if before and "launcher" not in before and before != "com.android.systemui":
+                    dev.launch(before)
+                else:
+                    dev.key("KEYCODE_HOME")
                 dev.release_lease()
             state[name] = {"price_usd_per_kwh": price, "shown": shown, "period": cur["period_label"],
                            "applied_at": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}
