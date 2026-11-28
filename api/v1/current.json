@@ -119,8 +119,8 @@
     },
     "status": "verified"
   },
-  "generated_at": "2026-11-27T04:07:06Z",
-  "checked_on": "2026-11-27",
+  "generated_at": "2026-11-28T04:07:07Z",
+  "checked_on": "2026-11-28",
   "endpoints": {
     "current": "https://muriente.github.io/pr-power-rate/api/v1/current.json",
     "history": "https://muriente.github.io/pr-power-rate/api/v1/history.json",
